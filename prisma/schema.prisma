@@ -1,0 +1,63 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Agent {
+  id                 String   @id @default(cuid())
+  name               String
+  email              String   @unique
+  role               String
+  avatar             String
+  isOnline           Boolean  @default(true)
+  activeTicketsCount Int      @default(0)
+  createdAt          DateTime @default(now())
+}
+
+model Ticket {
+  id                String        @id
+  ticketNumber      String        @unique
+  customerName      String
+  customerEmail     String
+  customerAvatar    String
+  subject           String
+  status            String        @default("open")
+  priority          String        @default("medium")
+  category          String        @default("general")
+  sentiment         String        @default("neutral")
+  assignedAgent     String?
+  assignedAgentName String?
+  satisfactionScore Int?
+  aiSummary         String?
+  tags              String        @default("[]")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  messages          ChatMessage[]
+}
+
+model ChatMessage {
+  id               String   @id
+  ticketId         String
+  ticket           Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender           String
+  senderName       String
+  text             String
+  timestamp        DateTime @default(now())
+  isInternalNote   Boolean  @default(false)
+  suggestedActions String?
+}
+
+model KnowledgeArticle {
+  id          String   @id
+  title       String
+  category    String
+  content     String
+  keywords    String
+  lastUpdated String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
